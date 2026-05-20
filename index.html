@@ -114,7 +114,7 @@
     .hero-ctas { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: .25rem; }
     .trust { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; margin-top: .25rem; }
     .trust-i { font-family: var(--ff-b); font-size: .68rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .35rem; }
-    .trust-i::before { content: '❄'; color: var(--ice); font-size: .75rem; }
+    .trust-i::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ice); flex-shrink: 0; }
     .hero-right { position: relative; border-radius: 1.25rem; overflow: hidden; }
     .hero-img { width: 100%; height: clamp(320px,50vw,520px); object-fit: cover; border-radius: 1.25rem; }
     .hero-badge { position: absolute; bottom: 1.25rem; right: 1.25rem; width: 80px; opacity: .55; pointer-events: none; }
@@ -143,13 +143,12 @@
     .meet-copy strong { color: var(--frost); }
     .badges { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: .5rem; }
     .badge {
-      display: flex; align-items: center; gap: .4rem; padding: .5rem .9rem;
-      border: 1.5px solid rgba(6,182,212,.35); border-radius: .4rem;
+      display: flex; align-items: center; gap: .5rem; padding: .45rem .95rem;
+      border: 1px solid rgba(6,182,212,.28); border-radius: 2rem;
       font-family: var(--ff-b); font-size: .68rem; font-weight: 700; color: var(--ice); letter-spacing: .07em; text-transform: uppercase;
-      background: rgba(6,182,212,.05);
-      clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+      background: rgba(6,182,212,.06);
     }
-    .badge::before { content: '🛡'; font-size: .9rem; }
+    .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--ice); flex-shrink: 0; opacity: .7; }
     @media (min-width: 1024px) { .meet-inner { grid-template-columns: 45% 55%; } .meet-l { min-height: 100vh; } .meet-r { padding: 6rem 4rem; } }
 
     /* SERVICES */
@@ -167,7 +166,7 @@
     .svc-desc { font-family: var(--ff-b); font-size: .82rem; color: var(--muted); margin: .9rem 0; line-height: 1.8; max-width: 460px; }
     .svc-feat { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: .75rem 0; }
     .svc-feat li { font-family: var(--ff-b); font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: .35rem; }
-    .svc-feat li::before { content: '❄'; color: var(--ice); }
+    .svc-feat li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--ice); flex-shrink: 0; margin-top: 2px; }
     .svc-cta {
       display: inline-flex; align-items: center; gap: .45rem; margin-top: 1.25rem; padding: .8rem 1.6rem;
       background: var(--orange); color: #fff; border-radius: 2rem;
@@ -189,7 +188,8 @@
       display: flex; flex-direction: column; gap: .6rem;
     }
     .why-tile:hover { border-color: rgba(6,182,212,.45); box-shadow: 0 0 28px rgba(6,182,212,.09); transform: scale(1.02); }
-    .why-ico { font-size: 1.9rem; }
+    .why-ico { display: flex; }
+    .why-ico svg { width: 26px; height: 26px; stroke: var(--ice); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
     .why-title { font-family: var(--ff-d); font-size: 1.05rem; font-weight: 700; }
     .why-body { font-family: var(--ff-b); font-size: .76rem; color: var(--muted); line-height: 1.75; }
     @media (min-width: 768px) { .why-grid { grid-template-columns: repeat(3,1fr); } }
@@ -235,7 +235,7 @@
     .area-h3 { font-family: var(--ff-d); font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; }
     .area-list { list-style: none; display: grid; grid-template-columns: repeat(2,1fr); gap: .45rem 1rem; }
     .area-list li { font-family: var(--ff-b); font-size: .76rem; color: var(--muted); display: flex; align-items: center; gap: .35rem; }
-    .area-list li::before { content: '❄'; color: var(--ice); font-size: .68rem; }
+    .area-list li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--ice); flex-shrink: 0; margin-top: 2px; }
     .area-list li.hi { color: var(--frost); font-weight: 700; }
     @media (min-width: 1024px) { .area-grid { grid-template-columns: 1fr 1fr; align-items: center; } }
 
@@ -466,12 +466,12 @@
       <h2 class="sec-h2" id="whyH2">What makes us different</h2>
     </div>
     <div class="why-grid">
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">👤</div><div class="why-title">Owner-Operated</div><div class="why-body">Our owner personally oversees every job. No middlemen. No anonymous call centres.</div></div>
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">⚡</div><div class="why-title">Same-Day Response</div><div class="why-body">Message us and expect a confirmed time window the same day. Always.</div></div>
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">❄</div><div class="why-title">All Brands</div><div class="why-body">Daikin, LG, Samsung, Carrier, Gree, O General — we service and repair them all.</div></div>
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">🏷</div><div class="why-title">Up to 30% Off</div><div class="why-body">Active promotion on all services this month. Ask us to confirm when you WhatsApp.</div></div>
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">📋</div><div class="why-title">On-Site Pricing</div><div class="why-body">Quote given on-site before any work starts. You approve it, then we proceed. No surprises.</div></div>
-      <div class="why-tile"><div class="why-ico" aria-hidden="true">💳</div><div class="why-title">Cash or Transfer</div><div class="why-body">Flexible payment. Cash accepted. Bank transfer available. No card machine required.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="why-title">Owner-Operated</div><div class="why-body">Our owner personally oversees every job. No middlemen. No anonymous call centres.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="why-title">Same-Day Response</div><div class="why-body">Message us and expect a confirmed time window the same day. Always.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><div class="why-title">All Brands</div><div class="why-body">Daikin, LG, Samsung, Carrier, Gree, O General — we service and repair them all.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7" stroke-width="2.5"/></svg></div><div class="why-title">Up to 30% Off</div><div class="why-body">Active promotion on all services this month. Ask us to confirm when you WhatsApp.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="why-title">On-Site Pricing</div><div class="why-body">Quote given on-site before any work starts. You approve it, then we proceed. No surprises.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div class="why-title">Cash or Transfer</div><div class="why-body">Flexible payment. Cash accepted. Bank transfer available. No card machine required.</div></div>
     </div>
   </div>
 </section>
