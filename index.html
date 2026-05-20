@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chill Master AC Repair — Downtown Dubai | Muhammad Ahmed Saifullah</title>
+  <meta name="description" content="Same-day AC repair, installation, and deep cleaning in Dubai. Owner-operated by Muhammad Ahmed Saifullah. WhatsApp direct line. Up to 30% off.">
+  <link rel="icon" type="image/png" href="images/chill-master-logo.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Space+Mono:wght@400;700&family=Caveat:wght@600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #11151f;
+      --ice: #06b6d4;
+      --ice-glow: #7dd3fc;
+      --frost: #f0f9ff;
+      --orange: #fb923c;
+      --muted: #94a3b8;
+      --ff-d: 'Syne', sans-serif;
+      --ff-b: 'Space Mono', monospace;
+      --ff-s: 'Caveat', cursive;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body { background: var(--bg); color: var(--frost); font-family: var(--ff-b); overflow-x: hidden; cursor: none; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    @media (pointer: coarse) { body { cursor: auto; } }
+
+    /* CURSOR */
+    .cur-dot, .cur-ring {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%); transition: width .2s, height .2s;
+    }
+    .cur-dot { width: 10px; height: 10px; background: var(--ice); }
+    .cur-ring { width: 10px; height: 10px; border: 1.5px solid var(--ice); background: transparent; opacity: .6; }
+    .cur-ring.link { width: 40px; height: 40px; }
+    .cur-ring.service { width: 48px; height: 48px; border-color: var(--ice-glow); }
+    @media (pointer: coarse) { .cur-dot, .cur-ring { display: none; } }
+
+    /* GRAIN */
+    .grain {
+      position: fixed; inset: 0; z-index: 9998; pointer-events: none; opacity: .04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* REUSABLE */
+    .crown { display: block; font-size: 1.1rem; color: var(--ice); opacity: .65; margin-bottom: .4rem; }
+    .eyebrow { font-family: var(--ff-b); font-size: .72rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--ice); }
+    .sig { font-family: var(--ff-s); font-size: 2rem; color: var(--ice); opacity: .8; display: block; margin-top: 1rem; }
+    .ice-line { width: 100%; height: 1px; background: linear-gradient(90deg,transparent,var(--ice),transparent); opacity: .25; }
+    .section-glow { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(90px); opacity: .1; }
+
+    /* BUTTONS */
+    .btn-p {
+      display: inline-flex; align-items: center; gap: .5rem; padding: .9rem 1.75rem;
+      background: var(--orange); color: #fff; border-radius: 2rem;
+      font-family: var(--ff-b); font-weight: 700; font-size: .82rem;
+      text-transform: uppercase; letter-spacing: .08em;
+      animation: pulse-o 2.5s infinite; transition: transform .2s;
+    }
+    .btn-p:hover { transform: scale(1.04); }
+    @keyframes pulse-o { 0%,100%{box-shadow:0 0 0 0 rgba(251,146,60,.55);} 50%{box-shadow:0 0 22px 5px rgba(251,146,60,.25);} }
+    .btn-g {
+      display: inline-flex; align-items: center; gap: .5rem; padding: .9rem 1.75rem;
+      border: 1.5px solid var(--ice); color: var(--ice); border-radius: 2rem;
+      font-family: var(--ff-b); font-weight: 700; font-size: .82rem;
+      text-transform: uppercase; letter-spacing: .08em; transition: background .2s;
+    }
+    .btn-g:hover { background: rgba(6,182,212,.1); }
+
+    /* NAV */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2rem;
+      background: rgba(255,255,255,.04); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent; transition: padding .3s, border-color .3s;
+    }
+    .nav.scrolled { padding: .7rem 2rem; border-color: rgba(6,182,212,.18); }
+    .nav-l { display: flex; align-items: center; gap: .65rem; }
+    .nav-logo { width: 44px; height: 44px; object-fit: contain; }
+    .nav-wm { font-family: var(--ff-d); font-size: 1.05rem; font-weight: 800; letter-spacing: .04em; }
+    .nav-r { display: flex; align-items: center; gap: 1rem; }
+    .nav-num { font-family: var(--ff-b); font-size: .72rem; color: var(--muted); display: none; }
+    .nav-wa {
+      display: flex; align-items: center; gap: .4rem; padding: .45rem 1.1rem;
+      background: var(--orange); color: #fff; border-radius: 2rem;
+      font-family: var(--ff-b); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+      transition: box-shadow .2s;
+    }
+    .nav-wa:hover { box-shadow: 0 0 18px rgba(251,146,60,.45); }
+    @media (min-width: 768px) { .nav-num { display: block; } }
+
+    /* HERO */
+    .hero { min-height: 100vh; padding: 8rem 1.5rem 4rem; position: relative; overflow: hidden; display: flex; align-items: center; }
+    .hero-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+    .hero-svg-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr; gap: 3rem; max-width: 1440px; margin: 0 auto; width: 100%; }
+    .hero-left { display: flex; flex-direction: column; gap: 1.25rem; }
+    .hero-h1 { font-family: var(--ff-d); font-size: clamp(2.4rem,5.5vw,4.8rem); font-weight: 800; line-height: 1.1; }
+    .hero-sub { font-family: var(--ff-b); font-size: clamp(.82rem,1.4vw,.95rem); line-height: 1.9; color: var(--muted); max-width: 520px; }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: .9rem; margin-top: .25rem; }
+    .trust { display: flex; flex-wrap: wrap; gap: .8rem 1.2rem; margin-top: .25rem; }
+    .trust-i { font-family: var(--ff-b); font-size: .68rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; display: flex; align-items: center; gap: .35rem; }
+    .trust-i::before { content: '❄'; color: var(--ice); font-size: .75rem; }
+    .hero-right { position: relative; border-radius: 1.25rem; overflow: hidden; }
+    .hero-img { width: 100%; height: clamp(320px,50vw,520px); object-fit: cover; border-radius: 1.25rem; }
+    .hero-badge { position: absolute; bottom: 1.25rem; right: 1.25rem; width: 80px; opacity: .55; pointer-events: none; }
+    .hero-card {
+      position: absolute; bottom: 1.25rem; left: 1.25rem;
+      background: rgba(10,14,26,.88); backdrop-filter: blur(12px);
+      border: 1px solid rgba(6,182,212,.3); border-radius: .9rem; padding: .7rem 1rem;
+      display: flex; align-items: center; gap: .7rem;
+    }
+    .pdot { width: 9px; height: 9px; background: var(--ice); border-radius: 50%; animation: pdot 1.5s infinite; }
+    @keyframes pdot { 0%,100%{box-shadow:0 0 0 0 rgba(6,182,212,.6);} 50%{box-shadow:0 0 0 5px rgba(6,182,212,0);} }
+    .card-t { font-family: var(--ff-b); font-size: .73rem; }
+    .card-s { font-family: var(--ff-b); font-size: .63rem; color: var(--muted); }
+    @media (min-width: 1024px) { .hero { padding: 8rem 4rem 4rem; } .hero-inner { grid-template-columns: 60% 40%; } }
+
+    /* MEET */
+    .meet { min-height: 100vh; display: grid; grid-template-columns: 1fr; overflow: hidden; background: var(--surface); }
+    .meet-inner { display: grid; grid-template-columns: 1fr; max-width: 1440px; margin: 0 auto; width: 100%; }
+    .meet-l { position: relative; min-height: 420px; }
+    .meet-img { width: 100%; height: 100%; min-height: 420px; object-fit: cover; object-position: center top; }
+    .meet-overlay { position: absolute; inset: 0; background: linear-gradient(135deg,transparent 30%,rgba(10,14,26,.88) 100%); }
+    .meet-seal { position: absolute; bottom: 1.5rem; right: 1.5rem; width: 110px; }
+    .meet-r { padding: 4rem 2rem; display: flex; flex-direction: column; justify-content: center; gap: 1.25rem; }
+    .meet-h2 { font-family: var(--ff-d); font-size: clamp(2.4rem,4.5vw,4.2rem); font-weight: 800; line-height: 1.05; }
+    .meet-copy { font-family: var(--ff-b); font-size: clamp(.82rem,1.1vw,.95rem); line-height: 2.1; color: var(--muted); max-width: 500px; }
+    .meet-copy strong { color: var(--frost); }
+    .badges { display: flex; flex-wrap: wrap; gap: .65rem; margin-top: .5rem; }
+    .badge {
+      display: flex; align-items: center; gap: .4rem; padding: .5rem .9rem;
+      border: 1.5px solid rgba(6,182,212,.35); border-radius: .4rem;
+      font-family: var(--ff-b); font-size: .68rem; font-weight: 700; color: var(--ice); letter-spacing: .07em; text-transform: uppercase;
+      background: rgba(6,182,212,.05);
+      clip-path: polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+    }
+    .badge::before { content: '🛡'; font-size: .9rem; }
+    @media (min-width: 1024px) { .meet-inner { grid-template-columns: 45% 55%; } .meet-l { min-height: 100vh; } .meet-r { padding: 6rem 4rem; } }
+
+    /* SERVICES */
+    .services { overflow: hidden; }
+    .svc-wrap { display: flex; flex-direction: column; }
+    .svc-card { position: relative; min-height: 100vh; overflow: hidden; display: flex; align-items: flex-end; }
+    .svc-bg { position: absolute; inset: 0; z-index: 0; }
+    .svc-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .svc-ov { position: absolute; inset: 0; background: linear-gradient(to top,rgba(10,14,26,.96) 0,rgba(10,14,26,.35) 65%,transparent 100%); }
+    .svc-content { position: relative; z-index: 2; padding: 2.5rem 2rem; width: 100%; }
+    .svc-num { font-family: var(--ff-d); font-size: clamp(5rem,14vw,11rem); font-weight: 800; color: rgba(6,182,212,.07); position: absolute; top: 1.5rem; right: 1.5rem; line-height: 1; pointer-events: none; }
+    .svc-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1.5px solid rgba(6,182,212,.35); border-radius: 50%; margin-bottom: .9rem; }
+    .svc-icon svg { width: 22px; height: 22px; stroke: var(--ice); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .svc-title { font-family: var(--ff-d); font-size: clamp(2.8rem,7vw,7rem); font-weight: 800; line-height: 1; color: var(--frost); }
+    .svc-desc { font-family: var(--ff-b); font-size: .82rem; color: var(--muted); margin: .9rem 0; line-height: 1.8; max-width: 460px; }
+    .svc-feat { list-style: none; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin: .75rem 0; }
+    .svc-feat li { font-family: var(--ff-b); font-size: .72rem; color: var(--muted); display: flex; align-items: center; gap: .35rem; }
+    .svc-feat li::before { content: '❄'; color: var(--ice); }
+    .svc-cta {
+      display: inline-flex; align-items: center; gap: .45rem; margin-top: 1.25rem; padding: .8rem 1.6rem;
+      background: var(--orange); color: #fff; border-radius: 2rem;
+      font-family: var(--ff-b); font-weight: 700; font-size: .77rem; text-transform: uppercase; letter-spacing: .07em;
+      transition: box-shadow .2s;
+    }
+    .svc-cta:hover { box-shadow: 0 0 18px rgba(251,146,60,.4); }
+    @media (min-width: 1024px) { .svc-wrap { flex-direction: row; height: 100vh; } .svc-card { min-height: 100vh; flex: 1; } .svc-content { padding: 3rem 2rem; } }
+
+    /* WHY */
+    .why { padding: 6rem 2rem; }
+    .sec-hdr { text-align: center; margin-bottom: 3.5rem; display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+    .sec-h2 { font-family: var(--ff-d); font-size: clamp(1.9rem,4.5vw,3.8rem); font-weight: 800; }
+    .why-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.25rem; max-width: 1200px; margin: 0 auto; }
+    .why-tile {
+      background: var(--surface); border: 1px solid rgba(6,182,212,.14); border-radius: .9rem; padding: 1.75rem 1.5rem;
+      clip-path: polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+      display: flex; flex-direction: column; gap: .6rem;
+    }
+    .why-tile:hover { border-color: rgba(6,182,212,.45); box-shadow: 0 0 28px rgba(6,182,212,.09); transform: scale(1.02); }
+    .why-ico { font-size: 1.9rem; }
+    .why-title { font-family: var(--ff-d); font-size: 1.05rem; font-weight: 700; }
+    .why-body { font-family: var(--ff-b); font-size: .76rem; color: var(--muted); line-height: 1.75; }
+    @media (min-width: 768px) { .why-grid { grid-template-columns: repeat(3,1fr); } }
+
+    /* PROCESS */
+    .process { padding: 6rem 2rem; background: var(--surface); }
+    .proc-track { position: relative; margin-top: 3.5rem; max-width: 1200px; margin-left: auto; margin-right: auto; }
+    .proc-line { position: absolute; top: 27px; left: 0; right: 0; height: 2px; pointer-events: none; }
+    .proc-line-bg { width: 100%; height: 100%; background: rgba(6,182,212,.14); }
+    .proc-fill { position: absolute; inset: 0; background: linear-gradient(90deg,var(--ice),var(--ice-glow)); transform-origin: left; transform: scaleX(0); }
+    .proc-steps { display: grid; grid-template-columns: repeat(2,1fr); gap: 3rem 1.5rem; }
+    .proc-step { display: flex; flex-direction: column; gap: .9rem; }
+    .step-chip {
+      width: 54px; height: 54px; border-radius: 50%; background: var(--bg);
+      border: 2px solid var(--ice); display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-d); font-size: 1.2rem; font-weight: 800; color: var(--ice); flex-shrink: 0; position: relative; z-index: 1;
+    }
+    .step-chip::after { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: radial-gradient(circle,rgba(6,182,212,.14) 0,transparent 70%); }
+    .step-t { font-family: var(--ff-d); font-size: .98rem; font-weight: 700; }
+    .step-b { font-family: var(--ff-b); font-size: .76rem; color: var(--muted); line-height: 1.75; }
+    @media (min-width: 768px) { .proc-steps { grid-template-columns: repeat(4,1fr); } }
+
+    /* PROMO */
+    .promo {
+      padding: 5rem 2rem; position: relative; overflow: hidden;
+      border-top: 1px solid rgba(6,182,212,.28); border-bottom: 1px solid rgba(6,182,212,.28);
+      animation: promo-b 3s ease-in-out infinite;
+    }
+    @keyframes promo-b { 0%,100%{box-shadow:none;} 50%{box-shadow:0 0 40px rgba(6,182,212,.07) inset;} }
+    .marquee-bg { position: absolute; inset: 0; display: flex; align-items: center; overflow: hidden; pointer-events: none; }
+    .marquee-t { display: flex; gap: 3rem; white-space: nowrap; animation: mq 22s linear infinite; opacity: .04; }
+    .marquee-t span { font-family: var(--ff-d); font-size: 7rem; font-weight: 800; color: var(--ice); }
+    @keyframes mq { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .promo-inner { position: relative; z-index: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; max-width: 800px; margin: 0 auto; }
+    .promo-h2 { font-family: var(--ff-d); font-size: clamp(2.4rem,7vw,5.5rem); font-weight: 800; }
+    .promo-h2 span { color: var(--ice); }
+    .promo-sub { font-family: var(--ff-b); font-size: .86rem; color: var(--muted); max-width: 440px; }
+
+    /* AREA */
+    .area { padding: 6rem 2rem; background: var(--surface); }
+    .area-grid { display: grid; grid-template-columns: 1fr; gap: 3.5rem; max-width: 1200px; margin: 3rem auto 0; }
+    .area-svg-wrap svg { width: 100%; max-width: 480px; margin: 0 auto; display: block; }
+    .area-h3 { font-family: var(--ff-d); font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .area-list { list-style: none; display: grid; grid-template-columns: repeat(2,1fr); gap: .45rem 1rem; }
+    .area-list li { font-family: var(--ff-b); font-size: .76rem; color: var(--muted); display: flex; align-items: center; gap: .35rem; }
+    .area-list li::before { content: '❄'; color: var(--ice); font-size: .68rem; }
+    .area-list li.hi { color: var(--frost); font-weight: 700; }
+    @media (min-width: 1024px) { .area-grid { grid-template-columns: 1fr 1fr; align-items: center; } }
+
+    /* REVIEWS */
+    .reviews { padding: 6rem 2rem; }
+    .rev-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; max-width: 1200px; margin: 3rem auto 0; }
+    .rev-card { background: var(--surface); border: 1px solid rgba(6,182,212,.14); border-radius: .9rem; padding: 2rem; text-align: center; display: flex; flex-direction: column; gap: .85rem; align-items: center; }
+    .rev-stars { color: var(--ice); font-size: 1.1rem; letter-spacing: .15em; }
+    .rev-txt { font-family: var(--ff-b); font-size: .8rem; color: var(--muted); line-height: 1.75; }
+    @media (min-width: 768px) { .rev-grid { grid-template-columns: repeat(3,1fr); } }
+
+    /* FINAL CTA */
+    .final { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 4rem 2rem; text-align: center; }
+    .final-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+    .final-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 1.75rem; max-width: 760px; }
+    .final-h2 { font-family: var(--ff-d); font-size: clamp(2.3rem,5.5vw,5rem); font-weight: 800; line-height: 1.1; }
+    .final-h2 em { font-style: normal; color: var(--ice); }
+    .final-call { font-family: var(--ff-b); font-size: .82rem; color: var(--muted); }
+    .final-call a { color: var(--ice); }
+
+    /* FOOTER */
+    .footer { background: var(--surface); padding: 4rem 2rem 2rem; text-align: center; }
+    .footer-logo { width: 80px; margin: 0 auto 1.5rem; }
+    .footer-tag { font-family: var(--ff-b); font-size: .78rem; color: var(--muted); line-height: 1.85; max-width: 380px; margin: 0 auto 2rem; }
+    .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.25rem; margin-bottom: 1.75rem; }
+    .footer-links a { font-family: var(--ff-b); font-size: .78rem; color: var(--ice); display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+    .footer-links a:hover { color: var(--frost); }
+    .footer-hours { font-family: var(--ff-b); font-size: .72rem; color: var(--muted); margin-bottom: 2.5rem; }
+    .footer-hours span { color: var(--ice); }
+    .footer-btm { border-top: 1px solid rgba(255,255,255,.07); padding-top: 1.5rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; font-family: var(--ff-b); font-size: .68rem; color: rgba(148,163,184,.45); }
+    .footer-btm a { color: var(--ice); opacity: .65; transition: opacity .2s; }
+    .footer-btm a:hover { opacity: 1; }
+
+    /* MOBILE BAR */
+    .mob-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; height: 58px; }
+    .mob-wa { flex: .6; display: flex; align-items: center; justify-content: center; gap: .45rem; background: var(--orange); color: #fff; font-family: var(--ff-b); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+    .mob-call { flex: .4; display: flex; align-items: center; justify-content: center; gap: .45rem; background: transparent; border: 1.5px solid var(--ice); color: var(--ice); font-family: var(--ff-b); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+    @media (max-width: 767px) { .mob-bar { display: flex; } body { padding-bottom: 58px; } }
+
+    /* WA ICON inline helper */
+    .wa-svg { fill: currentColor; display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
+    /* REDUCE MOTION */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .hero-canvas, .final-canvas { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="cur-dot" id="cDot"></div>
+<div class="cur-ring" id="cRing"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- NAV -->
+<nav class="nav" id="nav" aria-label="Main navigation">
+  <a href="#hero" class="nav-l" aria-label="Chill Master home">
+    <img src="images/chill-master-logo.png" class="nav-logo" alt="Chill Master AC Repair badge">
+    <span class="nav-wm">CHILL MASTER</span>
+  </a>
+  <div class="nav-r">
+    <span class="nav-num">Muhammad: 052 585 7237</span>
+    <a class="nav-wa" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%20need%20help%20with%20my%20AC." target="_blank" rel="noopener" aria-label="WhatsApp Muhammad">
+      <svg class="wa-svg" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero" aria-labelledby="heroH1">
+  <svg class="hero-svg-bg" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M200 900 L350 600 L280 400 L500 200 L420 0" stroke="rgba(6,182,212,0.1)" stroke-width="1"/>
+    <path d="M800 900 L750 650 L900 400 L820 200 L1000 0" stroke="rgba(6,182,212,0.07)" stroke-width="1"/>
+    <path d="M1300 900 L1200 700 L1350 450 L1250 200 L1440 100" stroke="rgba(6,182,212,0.05)" stroke-width="1"/>
+  </svg>
+  <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+  <div class="section-glow" style="width:560px;height:560px;background:var(--ice);top:-180px;right:-80px;" aria-hidden="true"></div>
+
+  <div class="hero-inner">
+    <div class="hero-left">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">Downtown Dubai &nbsp;·&nbsp; Always Open</p>
+      <h1 class="hero-h1" id="heroH1">AC down? Message Muhammad.<br>He's there today.</h1>
+      <p class="hero-sub">Same-day repair, installation, and deep cleaning. All brands. Up to 30% off this month. Every job, my personal guarantee.</p>
+      <div class="hero-ctas">
+        <a class="btn-p" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20my%20AC%20is%20down.%20Can%20you%20come%20today%3F" target="_blank" rel="noopener" aria-label="WhatsApp Muhammad about your AC now">
+          <svg class="wa-svg" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Muhammad Now
+        </a>
+        <a class="btn-g" href="tel:+971525857237" aria-label="Call Muhammad at 052 585 7237">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.12 2.88 2 2 0 012.11 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+          Call 052 585 7237
+        </a>
+      </div>
+      <span class="sig">— Muhammad</span>
+      <div class="trust" aria-label="Service highlights">
+        <span class="trust-i">All brands</span>
+        <span class="trust-i">Licensed technicians</span>
+        <span class="trust-i">Same-day</span>
+        <span class="trust-i">Owner-operated</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <img src="images/IMG-01-hero.webp" class="hero-img" alt="Luxurious Dubai apartment with modern wall-mounted AC unit at blue hour" loading="eager">
+      <img src="images/chill-master-logo.png" class="hero-badge" alt="" aria-hidden="true">
+      <div class="hero-card" role="status" aria-label="Response time: approximately 45 minutes">
+        <div class="pdot" aria-hidden="true"></div>
+        <div>
+          <div class="card-t">Response time: ~45 min</div>
+          <div class="card-s">Same-day service available</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- MEET MUHAMMAD -->
+<section class="meet" id="meet" aria-labelledby="meetH2">
+  <div class="meet-inner">
+    <div class="meet-l">
+      <!-- TODO: Swap IMG-02 for real photo of Muhammad before launch. Do not publish with placeholder visible. -->
+      <img src="images/IMG-02-owner.webp" class="meet-img" alt="Professional AC technician in navy uniform — placeholder, replace with Muhammad's photo before launch" loading="lazy">
+      <div class="meet-overlay" aria-hidden="true"></div>
+      <img src="images/chill-master-logo.png" class="meet-seal" alt="Chill Master official seal" aria-hidden="true">
+    </div>
+    <div class="meet-r">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">Meet the Owner</p>
+      <h2 class="meet-h2" id="meetH2">I'm Muhammad.<br>I run Chill Master.</h2>
+      <p class="meet-copy">
+        <strong>Every WhatsApp message comes to my phone.</strong><br>
+        <strong>Every technician answers to me.</strong><br>
+        <strong>Every job carries my personal guarantee.</strong><br><br>
+        When you message Chill Master, you're messaging me directly. Same-day response. Honest pricing on the spot. Fixed today, or I tell you exactly why not.
+      </p>
+      <span class="sig">— Muhammad Ahmed Saifullah</span>
+      <div class="badges" aria-label="Owner credentials">
+        <div class="badge">Owner-Operated</div>
+        <div class="badge">Personal Guarantee</div>
+        <div class="badge">Direct Line</div>
+      </div>
+      <a class="btn-p" style="margin-top:1.25rem;width:fit-content;" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%20saw%20your%20site%20and%20I%20have%20a%20question." target="_blank" rel="noopener" aria-label="Text Muhammad directly on WhatsApp">
+        <svg class="wa-svg" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Text Muhammad Directly
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- SERVICES -->
+<section class="services" id="services" aria-label="Our AC services">
+  <div class="svc-wrap" id="svcWrap">
+
+    <div class="svc-card">
+      <div class="svc-bg"><img src="images/IMG-03-repair.webp" alt="" aria-hidden="true" loading="lazy"></div>
+      <div class="svc-ov" aria-hidden="true"></div>
+      <div class="svc-content">
+        <div class="svc-num" aria-hidden="true">01</div>
+        <div class="svc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+        <h3 class="svc-title">AC Repair</h3>
+        <p class="svc-desc">Same-day diagnostics, gas refill, compressor repair, and electrical fault resolution. Every brand, every model.</p>
+        <ul class="svc-feat" aria-label="Repair services included">
+          <li>Diagnostics</li><li>Gas refill</li><li>Compressor repair</li><li>Electrical faults</li>
+        </ul>
+        <a class="svc-cta" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%20need%20AC%20repair.%20When%20can%20you%20come%3F" target="_blank" rel="noopener" aria-label="Ask Muhammad about AC repair">Ask Muhammad about Repair</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-bg"><img src="images/IMG-04-install.webp" alt="" aria-hidden="true" loading="lazy"></div>
+      <div class="svc-ov" aria-hidden="true"></div>
+      <div class="svc-content">
+        <div class="svc-num" aria-hidden="true">02</div>
+        <div class="svc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <h3 class="svc-title">Installation</h3>
+        <p class="svc-desc">Split, central, and ducted systems for all capacities. Professional fitting with full testing and commissioning.</p>
+        <ul class="svc-feat" aria-label="Installation services included">
+          <li>Split systems</li><li>Central AC</li><li>Ducted</li><li>All capacities</li>
+        </ul>
+        <a class="svc-cta" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%27d%20like%20a%20quote%20on%20a%20new%20AC." target="_blank" rel="noopener" aria-label="Ask Muhammad about AC installation">Ask Muhammad about Installation</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-bg"><img src="images/IMG-05-cleaning.webp" alt="" aria-hidden="true" loading="lazy"></div>
+      <div class="svc-ov" aria-hidden="true"></div>
+      <div class="svc-content">
+        <div class="svc-num" aria-hidden="true">03</div>
+        <div class="svc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/></svg></div>
+        <h3 class="svc-title">Deep Cleaning</h3>
+        <p class="svc-desc">Chemical wash, coil cleaning, and full sterilization. Your AC runs colder, lasts longer, and breathes clean.</p>
+        <ul class="svc-feat" aria-label="Cleaning services included">
+          <li>Chemical wash</li><li>Coil cleaning</li><li>Sterilization</li><li>Filter replacement</li>
+        </ul>
+        <a class="svc-cta" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%27d%20like%20to%20book%20AC%20deep%20cleaning." target="_blank" rel="noopener" aria-label="Ask Muhammad about deep cleaning">Ask Muhammad about Cleaning</a>
+      </div>
+    </div>
+
+    <div class="svc-card">
+      <div class="svc-bg"><img src="images/IMG-06-maintenance.webp" alt="" aria-hidden="true" loading="lazy"></div>
+      <div class="svc-ov" aria-hidden="true"></div>
+      <div class="svc-content">
+        <div class="svc-num" aria-hidden="true">04</div>
+        <div class="svc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <h3 class="svc-title">Maintenance</h3>
+        <p class="svc-desc">Quarterly visits, priority service, and an owner-backed guarantee. Muhammad's team keeps your system running year-round.</p>
+        <ul class="svc-feat" aria-label="Maintenance services included">
+          <li>Quarterly visits</li><li>Priority service</li><li>Performance checks</li><li>Owner guarantee</li>
+        </ul>
+        <a class="svc-cta" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%27m%20interested%20in%20your%20maintenance%20contract." target="_blank" rel="noopener" aria-label="Ask Muhammad about maintenance contracts">Ask Muhammad about Maintenance</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- WHY -->
+<section class="why" id="why" aria-labelledby="whyH2">
+  <div class="why-inner" style="max-width:1200px;margin:0 auto;">
+    <div class="sec-hdr">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">Why choose us</p>
+      <h2 class="sec-h2" id="whyH2">What makes us different</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">👤</div><div class="why-title">Owner-Operated</div><div class="why-body">Muhammad personally oversees every job. No middlemen. No anonymous call centres.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">⚡</div><div class="why-title">Same-Day Response</div><div class="why-body">Message Muhammad and expect a confirmed time window the same day. Always.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">❄</div><div class="why-title">All Brands</div><div class="why-body">Daikin, LG, Samsung, Carrier, Gree, O General — we service and repair them all.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">🏷</div><div class="why-title">Up to 30% Off</div><div class="why-body">Active promotion on all services this month. Ask Muhammad to confirm when you WhatsApp.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">📋</div><div class="why-title">On-Site Pricing</div><div class="why-body">Quote given on-site before any work starts. You approve it, then we proceed. No surprises.</div></div>
+      <div class="why-tile"><div class="why-ico" aria-hidden="true">💳</div><div class="why-title">Cash or Transfer</div><div class="why-body">Flexible payment. Cash accepted. Bank transfer available. No card machine required.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- PROCESS -->
+<section class="process" id="process" aria-labelledby="procH2">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="sec-hdr">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">How it works</p>
+      <h2 class="sec-h2" id="procH2">Four steps. Done today.</h2>
+    </div>
+    <div class="proc-track">
+      <div class="proc-line" aria-hidden="true">
+        <div class="proc-line-bg"></div>
+        <div class="proc-fill" id="procFill"></div>
+      </div>
+      <div class="proc-steps">
+        <div class="proc-step"><div class="step-chip" aria-label="Step 1">1</div><div><div class="step-t">Message Muhammad</div><div class="step-b">WhatsApp +971 52 585 7237. Describe your issue. He responds the same day.</div></div></div>
+        <div class="proc-step"><div class="step-chip" aria-label="Step 2">2</div><div><div class="step-t">Confirm a Window</div><div class="step-b">Muhammad confirms a same-day or next-morning arrival window that works for you.</div></div></div>
+        <div class="proc-step"><div class="step-chip" aria-label="Step 3">3</div><div><div class="step-t">Technician Arrives</div><div class="step-b">Licensed tech arrives, diagnoses the issue, and gives an on-site quote before touching anything.</div></div></div>
+        <div class="proc-step"><div class="step-chip" aria-label="Step 4">4</div><div><div class="step-t">Fixed Today</div><div class="step-b">Job completed with Muhammad's personal guarantee. If not today, he tells you exactly why.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- PROMO -->
+<section class="promo" id="promo" aria-labelledby="promoH2">
+  <div class="marquee-bg" aria-hidden="true">
+    <div class="marquee-t">
+      <span>REPAIR</span><span>INSTALL</span><span>CLEAN</span><span>MAINTAIN</span>
+      <span>REPAIR</span><span>INSTALL</span><span>CLEAN</span><span>MAINTAIN</span>
+      <span>REPAIR</span><span>INSTALL</span><span>CLEAN</span><span>MAINTAIN</span>
+    </div>
+  </div>
+  <div class="promo-inner">
+    <p class="eyebrow">Limited time offer</p>
+    <h2 class="promo-h2" id="promoH2"><span>30% OFF</span><br>This month. All services.</h2>
+    <p class="promo-sub">Repair, installation, deep cleaning, maintenance — every service, every brand. Active now.</p>
+    <a class="btn-p" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%20want%20to%20claim%20the%2030%25%20off%20offer." target="_blank" rel="noopener" aria-label="Claim the 30% off offer via WhatsApp">
+      Claim This Offer — Text Muhammad
+    </a>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- SERVICE AREA -->
+<section class="area" id="area" aria-labelledby="areaH2">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="sec-hdr">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">Coverage</p>
+      <h2 class="sec-h2" id="areaH2">Serving all of Dubai.<br>Fastest in Downtown.</h2>
+    </div>
+    <div class="area-grid">
+      <div class="area-svg-wrap" aria-hidden="true">
+        <svg viewBox="0 0 400 460" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Stylised map of Dubai service area">
+          <path d="M20 80 L60 60 L120 50 L180 40 L240 45 L300 50 L360 40 L380 80 L370 160 L350 240 L340 300 L330 360 L300 420 L260 440 L200 450 L140 440 L100 420 L70 360 L50 280 L30 200 Z" fill="rgba(6,182,212,0.04)" stroke="rgba(6,182,212,0.18)" stroke-width="1.5"/>
+          <rect x="155" y="138" width="90" height="65" rx="4" fill="rgba(6,182,212,0.14)" stroke="rgba(6,182,212,0.45)" stroke-width="1.5"/>
+          <circle cx="200" cy="157" r="18" fill="rgba(6,182,212,0.12)" stroke="var(--ice)" stroke-width="1.5"/>
+          <text x="200" y="163" text-anchor="middle" font-size="15" fill="rgba(125,211,252,0.95)">♛</text>
+          <text x="200" y="183" text-anchor="middle" font-family="monospace" font-size="6.5" fill="rgba(125,211,252,0.85)">DOWNTOWN</text>
+          <circle cx="218" cy="117" r="4" fill="rgba(6,182,212,0.55)"/><text x="226" y="121" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Business Bay</text>
+          <circle cx="245" cy="105" r="3" fill="rgba(6,182,212,0.45)"/><text x="253" y="109" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">DIFC</text>
+          <circle cx="98" cy="198" r="4" fill="rgba(6,182,212,0.45)"/><text x="106" y="202" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Marina</text>
+          <circle cx="78" cy="238" r="3" fill="rgba(6,182,212,0.4)"/><text x="86" y="242" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">JLT</text>
+          <circle cx="58" cy="208" r="3" fill="rgba(6,182,212,0.4)"/><text x="66" y="212" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">JBR</text>
+          <circle cx="38" cy="168" r="3" fill="rgba(6,182,212,0.4)"/><text x="46" y="172" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Palm</text>
+          <circle cx="302" cy="128" r="4" fill="rgba(6,182,212,0.45)"/><text x="310" y="132" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Deira</text>
+          <circle cx="278" cy="168" r="3" fill="rgba(6,182,212,0.4)"/><text x="286" y="172" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Bur Dubai</text>
+          <circle cx="138" cy="288" r="3" fill="rgba(6,182,212,0.4)"/><text x="146" y="292" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Al Barsha</text>
+          <circle cx="178" cy="258" r="3" fill="rgba(6,182,212,0.4)"/><text x="186" y="262" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Jumeirah</text>
+          <circle cx="312" cy="308" r="3" fill="rgba(6,182,212,0.4)"/><text x="320" y="312" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Silicon Oasis</text>
+          <circle cx="332" cy="258" r="3" fill="rgba(6,182,212,0.4)"/><text x="340" y="262" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Mirdif</text>
+          <circle cx="178" cy="328" r="3" fill="rgba(6,182,212,0.4)"/><text x="186" y="332" font-family="monospace" font-size="6" fill="rgba(148,163,184,0.7)">Dubai Hills</text>
+          <text x="28" y="52" font-family="monospace" font-size="7.5" fill="rgba(6,182,212,0.28)" letter-spacing="3">ARABIAN GULF</text>
+        </svg>
+      </div>
+      <div>
+        <h3 class="area-h3">We come to you, anywhere in Dubai.</h3>
+        <ul class="area-list" aria-label="Service coverage areas">
+          <li class="hi">Downtown Dubai</li>
+          <li>Business Bay</li>
+          <li>DIFC</li>
+          <li>Dubai Marina</li>
+          <li>JLT</li>
+          <li>JBR</li>
+          <li>Palm Jumeirah</li>
+          <li>Deira</li>
+          <li>Bur Dubai</li>
+          <li>Al Barsha</li>
+          <li>Jumeirah</li>
+          <li>Silicon Oasis</li>
+          <li>Mirdif</li>
+          <li>Dubai Hills</li>
+        </ul>
+        <a class="btn-g" style="margin-top:2rem;width:fit-content;" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20please%20contact%20me%20about%20my%20AC." target="_blank" rel="noopener" aria-label="Ask Muhammad if he covers your area">Not sure? Just ask Muhammad</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- REVIEWS -->
+<!-- TODO: Pull real reviews from FB page on confirmation. Do not generate fake testimonials. -->
+<section class="reviews" id="reviews" aria-labelledby="revH2">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="sec-hdr">
+      <span class="crown" aria-hidden="true">♛</span>
+      <p class="eyebrow">Customer reviews</p>
+      <h2 class="sec-h2" id="revH2">What customers say</h2>
+    </div>
+    <div class="rev-grid">
+      <div class="rev-card"><div class="rev-stars" aria-label="5 stars">★★★★★</div><p class="rev-txt">Real customer reviews coming soon. Pulled from Google and Facebook on launch.</p></div>
+      <div class="rev-card"><div class="rev-stars" aria-label="5 stars">★★★★★</div><p class="rev-txt">Real customer reviews coming soon. Pulled from Google and Facebook on launch.</p></div>
+      <div class="rev-card"><div class="rev-stars" aria-label="5 stars">★★★★★</div><p class="rev-txt">Real customer reviews coming soon. Pulled from Google and Facebook on launch.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="ice-line" aria-hidden="true"></div>
+
+<!-- FINAL CTA -->
+<section class="final" id="final-cta" aria-labelledby="finalH2">
+  <canvas class="final-canvas" id="finalCanvas" aria-hidden="true"></canvas>
+  <div class="section-glow" style="width:650px;height:650px;background:var(--ice);top:50%;left:50%;transform:translate(-50%,-50%);" aria-hidden="true"></div>
+  <div class="final-inner">
+    <span class="crown" style="font-size:1.8rem;" aria-hidden="true">♛</span>
+    <h2 class="final-h2" id="finalH2">Your AC is <em>one message</em><br>to Muhammad away<br>from working again.</h2>
+    <a class="btn-p" style="font-size:1rem;padding:1.1rem 2.25rem;" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20please%20contact%20me%20about%20my%20AC." target="_blank" rel="noopener" aria-label="WhatsApp Muhammad now about your AC">
+      <svg class="wa-svg" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp Muhammad Now
+    </a>
+    <p class="final-call">Or call directly: <a href="tel:+971525857237">052 585 7237</a></p>
+    <span class="sig" style="font-size:2.4rem;">— Muhammad</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <img src="images/chill-master-logo.png" class="footer-logo" alt="Chill Master AC Repair" loading="lazy">
+  <p class="footer-tag">Owner-operated. Dubai-based. Always reachable.<br>Muhammad Ahmed Saifullah — Chill Master AC Repair.</p>
+  <div class="footer-links">
+    <a href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20I%20need%20help%20with%20my%20AC." target="_blank" rel="noopener" aria-label="WhatsApp Muhammad">
+      <svg class="wa-svg" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp: +971 52 585 7237
+    </a>
+    <a href="tel:+971525857237" aria-label="Call Muhammad">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.12 2.88 2 2 0 012.11 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+      Call: 052 585 7237
+    </a>
+    <a href="mailto:muhammadahmedsaifullah@gmail.com" aria-label="Email Muhammad">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      muhammadahmedsaifullah@gmail.com
+    </a>
+  </div>
+  <p class="footer-hours">Hours: <span>Always open — 24/7, 365 days</span></p>
+  <div class="footer-btm">
+    <span>© 2026 Chill Master AC Repair</span>
+    <a href="https://novalab-digital.com" target="_blank" rel="noopener">Built by NovaLab Digital</a>
+  </div>
+</footer>
+
+<!-- STICKY MOBILE BAR -->
+<div class="mob-bar" aria-label="Quick contact">
+  <a class="mob-wa" href="https://wa.me/971525857237?text=Hi%20Muhammad%2C%20my%20AC%20is%20down.%20Can%20you%20come%20today%3F" target="_blank" rel="noopener" aria-label="WhatsApp Muhammad now">
+    <svg class="wa-svg" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WhatsApp Muhammad
+  </a>
+  <a class="mob-call" href="tel:+971525857237" aria-label="Call Muhammad">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11.5 19.79 19.79 0 01.12 2.88 2 2 0 012.11 1h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 8.09a16 16 0 006 6l.45-.45a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+    Call
+  </a>
+</div>
+
+<script>
+// Plugin registration
+if (typeof gsap !== 'undefined') {
+  const reg = [];
+  if (typeof ScrollTrigger !== 'undefined') reg.push(ScrollTrigger);
+  if (typeof SplitText !== 'undefined') reg.push(SplitText);
+  if (typeof Flip !== 'undefined') reg.push(Flip);
+  if (reg.length) gsap.registerPlugin(...reg);
+}
+
+// Lenis
+let lenis;
+if (typeof Lenis !== 'undefined') {
+  lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+  lenis.on('scroll', () => { if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update(); });
+  (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+}
+
+// Custom cursor
+(function() {
+  const dot = document.getElementById('cDot');
+  const ring = document.getElementById('cRing');
+  if (!dot || !ring || !window.matchMedia('(pointer:fine)').matches) return;
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  (function tick() {
+    dot.style.cssText = `left:${mx}px;top:${my}px;`;
+    rx += (mx-rx)*0.1; ry += (my-ry)*0.1;
+    ring.style.cssText = `left:${rx}px;top:${ry}px;`;
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,button').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('link'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('link'));
+  });
+  document.querySelectorAll('.svc-card').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('service'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('service'));
+  });
+})();
+
+// Nav condense
+window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', scrollY > 60), {passive:true});
+
+// GSAP animations
+window.addEventListener('load', () => {
+  if (typeof gsap === 'undefined') return;
+  if (typeof ScrollTrigger !== 'undefined') {
+    // Hero image parallax
+    gsap.to('.hero-right img', { yPercent: -12, ease:'none', scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:true} });
+    // Process fill
+    gsap.to('#procFill', { scaleX:1, ease:'none', scrollTrigger:{trigger:'.process', start:'top 70%', end:'bottom 60%', scrub:true} });
+    // Why tiles
+    gsap.from('.why-tile', { opacity:0, y:35, duration:.55, stagger:.09, ease:'power2.out', scrollTrigger:{trigger:'.why-grid', start:'top 82%'} });
+    // Process steps
+    gsap.from('.proc-step', { opacity:0, y:28, duration:.5, stagger:.13, scrollTrigger:{trigger:'.proc-steps', start:'top 82%'} });
+    // Meet right
+    gsap.from('.meet-r > *', { opacity:0, x:28, duration:.55, stagger:.09, scrollTrigger:{trigger:'.meet-r', start:'top 78%'} });
+    // Service bg parallax
+    document.querySelectorAll('.svc-bg img').forEach(img => {
+      gsap.to(img, { yPercent:12, ease:'none', scrollTrigger:{trigger:img.closest('.svc-card'), start:'top bottom', end:'bottom top', scrub:true} });
+    });
+    // Review cards
+    gsap.from('.rev-card', { opacity:0, y:28, duration:.5, stagger:.1, scrollTrigger:{trigger:'.rev-grid', start:'top 82%'} });
+  }
+  // SplitText headlines
+  if (typeof SplitText !== 'undefined') {
+    const splitReveal = (sel, delay) => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      const st = new SplitText(el, {type:'chars,words'});
+      gsap.from(st.chars, {opacity:0, y:18, rotateX:-35, duration:.55, stagger:.018, delay:delay||0, ease:'power3.out'});
+    };
+    splitReveal('#heroH1', .25);
+    if (typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.create({ trigger:'#meetH2', start:'top 78%', once:true, onEnter:() => splitReveal('#meetH2') });
+      ScrollTrigger.create({ trigger:'#finalH2', start:'top 75%', once:true, onEnter:() => splitReveal('#finalH2') });
+    }
+  }
+  // Frost crack draw-in
+  ['#frost-crack-1','#frost-crack-2','#frost-crack-3'].forEach((sel,i) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    const len = el.getTotalLength ? el.getTotalLength() : 800;
+    el.style.strokeDasharray = len;
+    el.style.strokeDashoffset = len;
+    gsap.to(el, {strokeDashoffset:0, duration:2, delay:i*.28, ease:'power2.out'});
+  });
+});
+
+// THREE.JS — Hero particles
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setClearColor(0,0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60,1,.1,100);
+  camera.position.z = 3;
+  const N = 800, pos = new Float32Array(N*3), vel = new Float32Array(N);
+  for (let i=0;i<N;i++) {
+    pos[i*3]=(Math.random()-.5)*8; pos[i*3+1]=(Math.random()-.5)*6; pos[i*3+2]=(Math.random()-.5)*3;
+    vel[i]=.0015+Math.random()*.0035;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({color:0x06b6d4,size:.018,transparent:true,opacity:.65,sizeAttenuation:true}));
+  scene.add(pts);
+  let mx=0,my=0,tx=0,ty=0;
+  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.45;my=(e.clientY/innerHeight-.5)*.45;});
+  const resize=()=>{const w=canvas.parentElement.clientWidth,h=canvas.parentElement.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+  resize(); window.addEventListener('resize',resize);
+  (function tick(){
+    requestAnimationFrame(tick);
+    for(let i=0;i<N;i++){pos[i*3+1]+=vel[i];if(pos[i*3+1]>4)pos[i*3+1]=-4;}
+    geo.attributes.position.needsUpdate=true;
+    tx+=(mx-tx)*.05;ty+=(my-ty)*.05;
+    pts.rotation.x=ty*.28;pts.rotation.y=tx*.28;
+    renderer.render(scene,camera);
+  })();
+})();
+
+// THREE.JS — Final CTA particles
+(function() {
+  const canvas = document.getElementById('finalCanvas');
+  if (!canvas || typeof THREE === 'undefined') return;
+  const renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setClearColor(0,0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60,1,.1,100);
+  camera.position.z = 3;
+  const N = 2500, pos = new Float32Array(N*3), vel = new Float32Array(N);
+  for (let i=0;i<N;i++) {
+    pos[i*3]=(Math.random()-.5)*10;pos[i*3+1]=(Math.random()-.5)*8;pos[i*3+2]=(Math.random()-.5)*4;
+    vel[i]=.0008+Math.random()*.0025;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const pts = new THREE.Points(geo, new THREE.PointsMaterial({color:0x7dd3fc,size:.013,transparent:true,opacity:.45,sizeAttenuation:true}));
+  scene.add(pts);
+  const section = canvas.parentElement;
+  const resize=()=>{const w=section.clientWidth,h=section.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+  resize(); window.addEventListener('resize',resize);
+  let active=false;
+  if (typeof IntersectionObserver!=='undefined') new IntersectionObserver(e=>{active=e[0].isIntersecting;},{threshold:.05}).observe(section);
+  else active=true;
+  (function tick(){
+    requestAnimationFrame(tick);
+    if(!active)return;
+    for(let i=0;i<N;i++){pos[i*3+1]+=vel[i];if(pos[i*3+1]>5)pos[i*3+1]=-5;}
+    geo.attributes.position.needsUpdate=true;
+    pts.rotation.y+=.0002;
+    renderer.render(scene,camera);
+  })();
+})();
+</script>
+</body>
+</html>

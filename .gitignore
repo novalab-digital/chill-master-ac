@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+.vercel
+qa/
+generate_images.sh
+gen_img08.sh
