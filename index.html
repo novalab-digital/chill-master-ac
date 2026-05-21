@@ -14,7 +14,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
   <style>
@@ -339,7 +338,7 @@
       </div>
     </div>
     <div class="hero-right">
-      <img src="images/IMG-01-hero.webp" class="hero-img" alt="Luxurious Dubai apartment with modern wall-mounted AC unit at blue hour" loading="eager">
+      <img src="images/IMG-01-hero.webp" class="hero-img" alt="Luxurious Dubai apartment with modern wall-mounted AC unit at blue hour" loading="eager" fetchpriority="high">
       <img src="images/chill-master-logo.png" class="hero-badge" alt="" aria-hidden="true">
       <div class="hero-card" role="status" aria-label="Response time: approximately 45 minutes">
         <div class="pdot" aria-hidden="true"></div>
@@ -658,7 +657,6 @@ if (typeof gsap !== 'undefined') {
   const reg = [];
   if (typeof ScrollTrigger !== 'undefined') reg.push(ScrollTrigger);
   if (typeof SplitText !== 'undefined') reg.push(SplitText);
-  if (typeof Flip !== 'undefined') reg.push(Flip);
   if (reg.length) gsap.registerPlugin(...reg);
 }
 
@@ -667,7 +665,7 @@ let lenis;
 if (typeof Lenis !== 'undefined') {
   lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
   lenis.on('scroll', () => { if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.update(); });
-  (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(0);
+  (function raf(t) { if (document.visibilityState !== 'hidden') lenis.raf(t); requestAnimationFrame(raf); })(0);
 }
 
 // Custom cursor
@@ -678,9 +676,11 @@ if (typeof Lenis !== 'undefined') {
   let mx=0,my=0,rx=0,ry=0;
   document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
   (function tick() {
-    dot.style.cssText = `left:${mx}px;top:${my}px;`;
-    rx += (mx-rx)*0.1; ry += (my-ry)*0.1;
-    ring.style.cssText = `left:${rx}px;top:${ry}px;`;
+    if (document.visibilityState !== 'hidden') {
+      dot.style.cssText = `left:${mx}px;top:${my}px;`;
+      rx += (mx-rx)*0.1; ry += (my-ry)*0.1;
+      ring.style.cssText = `left:${rx}px;top:${ry}px;`;
+    }
     requestAnimationFrame(tick);
   })();
   document.querySelectorAll('a,button').forEach(el => {
@@ -694,7 +694,8 @@ if (typeof Lenis !== 'undefined') {
 })();
 
 // Nav condense
-window.addEventListener('scroll', () => document.getElementById('nav').classList.toggle('scrolled', scrollY > 60), {passive:true});
+const _navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => _navEl.classList.toggle('scrolled', scrollY > 60), {passive:true});
 
 // GSAP animations
 window.addEventListener('load', () => {
@@ -723,7 +724,7 @@ window.addEventListener('load', () => {
       const el = document.querySelector(sel);
       if (!el) return;
       const st = new SplitText(el, {type:'chars,words'});
-      gsap.from(st.chars, {opacity:0, y:18, rotateX:-35, duration:.55, stagger:.018, delay:delay||0, ease:'power3.out'});
+      gsap.from(st.chars, {opacity:0, y:18, rotateX:-35, duration:.55, stagger:.018, delay:delay||0, ease:'power3.out', onComplete: () => st.revert()});
     };
     splitReveal('#heroH1', .25);
     if (typeof ScrollTrigger !== 'undefined') {
@@ -731,15 +732,6 @@ window.addEventListener('load', () => {
       ScrollTrigger.create({ trigger:'#finalH2', start:'top 75%', once:true, onEnter:() => splitReveal('#finalH2') });
     }
   }
-  // Frost crack draw-in
-  ['#frost-crack-1','#frost-crack-2','#frost-crack-3'].forEach((sel,i) => {
-    const el = document.querySelector(sel);
-    if (!el) return;
-    const len = el.getTotalLength ? el.getTotalLength() : 800;
-    el.style.strokeDasharray = len;
-    el.style.strokeDashoffset = len;
-    gsap.to(el, {strokeDashoffset:0, duration:2, delay:i*.28, ease:'power2.out'});
-  });
 });
 
 // FROST CRYSTALS — shared factory
@@ -747,12 +739,14 @@ function makeFrostCrystal(cx, cy, cw, ch) {
   const size = Math.min(cw, ch) * (0.1 + Math.random() * 0.09);
   const baseAngle = Math.random() * Math.PI / 3;
   const maxAlpha = 0.45 + Math.random() * 0.3;
+  let growingCount = 0; // H4: counter replaces anyGrowing() tree scan
 
   function makeBranch(ox, oy, angle, length, depth) {
     const fracs = depth === 0 ? [0.3, 0.55, 0.75] : depth === 1 ? [0.45] : [];
+    growingCount++;
     return { ox, oy, angle, length, drawn: 0,
       speed: (1.8 + Math.random()) * (1 - depth * 0.28),
-      depth, subs: [], fracs, spawned: fracs.map(() => false) };
+      depth, subs: [], fracs, spawned: fracs.map(() => false), done: false };
   }
 
   const branches = Array.from({length: 6}, (_, i) =>
@@ -762,7 +756,11 @@ function makeFrostCrystal(cx, cy, cw, ch) {
   const holdFor = 130 + Math.random() * 100;
 
   function growBranch(b) {
-    if (b.drawn < b.length) b.drawn = Math.min(b.length, b.drawn + b.speed);
+    if (b.done) return; // H3: skip fully completed branches
+    if (b.drawn < b.length) {
+      b.drawn = Math.min(b.length, b.drawn + b.speed);
+      if (b.drawn >= b.length) growingCount--; // H4: branch finished
+    }
     for (let i = 0; i < b.fracs.length; i++) {
       if (!b.spawned[i] && b.drawn / b.length >= b.fracs[i]) {
         const t = b.fracs[i];
@@ -777,11 +775,8 @@ function makeFrostCrystal(cx, cy, cw, ch) {
       }
     }
     for (const s of b.subs) growBranch(s);
-  }
-
-  function anyGrowing(b) {
-    if (b.drawn < b.length) return true;
-    return b.subs.some(s => anyGrowing(s));
+    // H3: mark branch done when fully drawn, all subs spawned, and all subs done
+    if (b.drawn >= b.length && b.spawned.every(Boolean) && b.subs.every(s => s.done)) b.done = true;
   }
 
   function drawBranch(ctx, b, a) {
@@ -806,7 +801,7 @@ function makeFrostCrystal(cx, cy, cw, ch) {
       if (state === 'growing') {
         alpha = Math.min(maxAlpha, alpha + 0.022);
         for (const b of branches) growBranch(b);
-        if (!branches.some(b => anyGrowing(b))) state = 'holding';
+        if (growingCount === 0) state = 'holding'; // H4: O(1) check
       } else if (state === 'holding') {
         if (++holdTimer >= holdFor) state = 'fading';
       } else {
@@ -825,34 +820,35 @@ function makeFrostCrystal(cx, cy, cw, ch) {
 
 // FROST CRYSTALS — Hero
 (function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // L2
   const canvas = document.getElementById('heroCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dpr = () => Math.min(devicePixelRatio, 2);
-  let w, h;
+  let w, h, d = 1; // H1: cache DPR at resize time
   const resize = () => {
+    d = Math.min(devicePixelRatio, 2);
     w = canvas.parentElement.clientWidth;
     h = canvas.parentElement.clientHeight;
-    canvas.width = Math.round(w * dpr());
-    canvas.height = Math.round(h * dpr());
+    canvas.width = Math.round(w * d);
+    canvas.height = Math.round(h * d);
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    crystals = []; spawn(); spawn(); // H2: reset crystals on resize
   };
-  resize(); window.addEventListener('resize', resize);
   let crystals = [];
   const MAX = 5;
   const spawn = () => crystals.push(makeFrostCrystal(
     w * (0.1 + Math.random() * 0.8), h * (0.1 + Math.random() * 0.8), w, h));
-  spawn(); spawn();
+  resize(); window.addEventListener('resize', resize);
   let mx=0, my=0, tx=0, ty=0;
-  document.addEventListener('mousemove', e => {
+  document.addEventListener('mousemove', e => { // H5: passive not needed on document mousemove (no default action)
     mx = (e.clientX/innerWidth - 0.5) * 20;
     my = (e.clientY/innerHeight - 0.5) * 14;
-  });
+  }, {passive: true});
   (function tick() {
     requestAnimationFrame(tick);
-    const d = dpr();
+    if (document.visibilityState === 'hidden') return; // C1: skip when tab hidden
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save(); ctx.scale(d, d);
+    ctx.save(); ctx.scale(d, d); // H1: use cached DPR
     tx += (mx - tx) * 0.04; ty += (my - ty) * 0.04;
     ctx.translate(tx, ty);
     crystals = crystals.filter(c => !c.dead());
@@ -864,32 +860,32 @@ function makeFrostCrystal(cx, cy, cw, ch) {
 
 // FROST CRYSTALS — Final CTA
 (function() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // L2
   const canvas = document.getElementById('finalCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dpr = () => Math.min(devicePixelRatio, 2);
-  let w, h;
+  let w, h, d = 1; // H1: cache DPR at resize time
   const section = canvas.parentElement;
   const resize = () => {
+    d = Math.min(devicePixelRatio, 2);
     w = section.clientWidth; h = section.clientHeight;
-    canvas.width = Math.round(w * dpr()); canvas.height = Math.round(h * dpr());
+    canvas.width = Math.round(w * d); canvas.height = Math.round(h * d);
     canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    crystals = []; spawn(); // H2: reset crystals on resize
   };
-  resize(); window.addEventListener('resize', resize);
   let crystals = [], active = false;
   const MAX = 3;
   const spawn = () => crystals.push(
     makeFrostCrystal(w*(0.1+Math.random()*0.8), h*(0.1+Math.random()*0.8), w*0.5, h*0.5));
-  spawn();
+  resize(); window.addEventListener('resize', resize);
   if (typeof IntersectionObserver !== 'undefined')
     new IntersectionObserver(e => { active = e[0].isIntersecting; }, {threshold:.05}).observe(section);
   else active = true;
   (function tick() {
     requestAnimationFrame(tick);
-    if (!active) return;
-    const d = dpr();
+    if (document.visibilityState === 'hidden' || !active) return; // C1
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save(); ctx.scale(d, d);
+    ctx.save(); ctx.scale(d, d); // H1: use cached DPR
     crystals = crystals.filter(c => !c.dead());
     for (const c of crystals) { c.update(); c.draw(ctx); }
     ctx.restore();
