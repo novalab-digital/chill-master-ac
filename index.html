@@ -15,7 +15,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/SplitText.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/Flip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
   <style>
@@ -743,71 +742,158 @@ window.addEventListener('load', () => {
   });
 });
 
-// THREE.JS — Hero particles
+// FROST CRYSTALS — shared factory
+function makeFrostCrystal(cx, cy, cw, ch) {
+  const size = Math.min(cw, ch) * (0.1 + Math.random() * 0.09);
+  const baseAngle = Math.random() * Math.PI / 3;
+  const maxAlpha = 0.45 + Math.random() * 0.3;
+
+  function makeBranch(ox, oy, angle, length, depth) {
+    const fracs = depth === 0 ? [0.3, 0.55, 0.75] : depth === 1 ? [0.45] : [];
+    return { ox, oy, angle, length, drawn: 0,
+      speed: (1.8 + Math.random()) * (1 - depth * 0.28),
+      depth, subs: [], fracs, spawned: fracs.map(() => false) };
+  }
+
+  const branches = Array.from({length: 6}, (_, i) =>
+    makeBranch(cx, cy, baseAngle + i * Math.PI / 3, size, 0));
+
+  let alpha = 0, state = 'growing', holdTimer = 0;
+  const holdFor = 130 + Math.random() * 100;
+
+  function growBranch(b) {
+    if (b.drawn < b.length) b.drawn = Math.min(b.length, b.drawn + b.speed);
+    for (let i = 0; i < b.fracs.length; i++) {
+      if (!b.spawned[i] && b.drawn / b.length >= b.fracs[i]) {
+        const t = b.fracs[i];
+        const sx = b.ox + Math.cos(b.angle) * b.length * t;
+        const sy = b.oy + Math.sin(b.angle) * b.length * t;
+        const sl = b.length * (b.depth === 0 ? 0.38 : 0.46);
+        if (b.depth < 2) {
+          b.subs.push(makeBranch(sx, sy, b.angle + Math.PI/3, sl, b.depth+1));
+          b.subs.push(makeBranch(sx, sy, b.angle - Math.PI/3, sl, b.depth+1));
+        }
+        b.spawned[i] = true;
+      }
+    }
+    for (const s of b.subs) growBranch(s);
+  }
+
+  function anyGrowing(b) {
+    if (b.drawn < b.length) return true;
+    return b.subs.some(s => anyGrowing(s));
+  }
+
+  function drawBranch(ctx, b, a) {
+    if (b.drawn <= 0) return;
+    const ex = b.ox + Math.cos(b.angle) * b.drawn;
+    const ey = b.oy + Math.sin(b.angle) * b.drawn;
+    const da = a * (1 - b.depth * 0.22);
+    ctx.globalAlpha = da;
+    ctx.strokeStyle = b.depth === 0 ? '#06b6d4' : '#7dd3fc';
+    ctx.lineWidth = b.depth === 0 ? 0.85 : 0.5;
+    ctx.beginPath(); ctx.moveTo(b.ox, b.oy); ctx.lineTo(ex, ey); ctx.stroke();
+    if (state === 'growing' && b.drawn < b.length) {
+      ctx.globalAlpha = da * 0.85;
+      ctx.fillStyle = '#f0f9ff';
+      ctx.beginPath(); ctx.arc(ex, ey, Math.max(0.4, 1.3 - b.depth * 0.4), 0, Math.PI*2); ctx.fill();
+    }
+    for (const s of b.subs) drawBranch(ctx, s, da);
+  }
+
+  return {
+    update() {
+      if (state === 'growing') {
+        alpha = Math.min(maxAlpha, alpha + 0.022);
+        for (const b of branches) growBranch(b);
+        if (!branches.some(b => anyGrowing(b))) state = 'holding';
+      } else if (state === 'holding') {
+        if (++holdTimer >= holdFor) state = 'fading';
+      } else {
+        alpha -= 0.005;
+      }
+    },
+    draw(ctx) {
+      if (alpha <= 0) return;
+      ctx.save(); ctx.lineCap = 'round';
+      for (const b of branches) drawBranch(ctx, b, alpha);
+      ctx.restore();
+    },
+    dead() { return state === 'fading' && alpha <= 0; }
+  };
+}
+
+// FROST CRYSTALS — Hero
 (function() {
   const canvas = document.getElementById('heroCanvas');
-  if (!canvas || typeof THREE === 'undefined') return;
-  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setClearColor(0,0);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60,1,.1,100);
-  camera.position.z = 3;
-  const N = 800, pos = new Float32Array(N*3), vel = new Float32Array(N);
-  for (let i=0;i<N;i++) {
-    pos[i*3]=(Math.random()-.5)*8; pos[i*3+1]=(Math.random()-.5)*6; pos[i*3+2]=(Math.random()-.5)*3;
-    vel[i]=.0015+Math.random()*.0035;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  const pts = new THREE.Points(geo, new THREE.PointsMaterial({color:0x06b6d4,size:.018,transparent:true,opacity:.65,sizeAttenuation:true}));
-  scene.add(pts);
-  let mx=0,my=0,tx=0,ty=0;
-  document.addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.45;my=(e.clientY/innerHeight-.5)*.45;});
-  const resize=()=>{const w=canvas.parentElement.clientWidth,h=canvas.parentElement.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
-  resize(); window.addEventListener('resize',resize);
-  (function tick(){
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = () => Math.min(devicePixelRatio, 2);
+  let w, h;
+  const resize = () => {
+    w = canvas.parentElement.clientWidth;
+    h = canvas.parentElement.clientHeight;
+    canvas.width = Math.round(w * dpr());
+    canvas.height = Math.round(h * dpr());
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  };
+  resize(); window.addEventListener('resize', resize);
+  let crystals = [];
+  const MAX = 5;
+  const spawn = () => crystals.push(makeFrostCrystal(
+    w * (0.1 + Math.random() * 0.8), h * (0.1 + Math.random() * 0.8), w, h));
+  spawn(); spawn();
+  let mx=0, my=0, tx=0, ty=0;
+  document.addEventListener('mousemove', e => {
+    mx = (e.clientX/innerWidth - 0.5) * 20;
+    my = (e.clientY/innerHeight - 0.5) * 14;
+  });
+  (function tick() {
     requestAnimationFrame(tick);
-    for(let i=0;i<N;i++){pos[i*3+1]+=vel[i];if(pos[i*3+1]>4)pos[i*3+1]=-4;}
-    geo.attributes.position.needsUpdate=true;
-    tx+=(mx-tx)*.05;ty+=(my-ty)*.05;
-    pts.rotation.x=ty*.28;pts.rotation.y=tx*.28;
-    renderer.render(scene,camera);
+    const d = dpr();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save(); ctx.scale(d, d);
+    tx += (mx - tx) * 0.04; ty += (my - ty) * 0.04;
+    ctx.translate(tx, ty);
+    crystals = crystals.filter(c => !c.dead());
+    for (const c of crystals) { c.update(); c.draw(ctx); }
+    ctx.restore();
+    if (crystals.length < MAX && Math.random() < 0.007) spawn();
   })();
 })();
 
-// THREE.JS — Final CTA particles
+// FROST CRYSTALS — Final CTA
 (function() {
   const canvas = document.getElementById('finalCanvas');
-  if (!canvas || typeof THREE === 'undefined') return;
-  const renderer = new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setClearColor(0,0);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60,1,.1,100);
-  camera.position.z = 3;
-  const N = 2500, pos = new Float32Array(N*3), vel = new Float32Array(N);
-  for (let i=0;i<N;i++) {
-    pos[i*3]=(Math.random()-.5)*10;pos[i*3+1]=(Math.random()-.5)*8;pos[i*3+2]=(Math.random()-.5)*4;
-    vel[i]=.0008+Math.random()*.0025;
-  }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  const pts = new THREE.Points(geo, new THREE.PointsMaterial({color:0x7dd3fc,size:.013,transparent:true,opacity:.45,sizeAttenuation:true}));
-  scene.add(pts);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = () => Math.min(devicePixelRatio, 2);
+  let w, h;
   const section = canvas.parentElement;
-  const resize=()=>{const w=section.clientWidth,h=section.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
-  resize(); window.addEventListener('resize',resize);
-  let active=false;
-  if (typeof IntersectionObserver!=='undefined') new IntersectionObserver(e=>{active=e[0].isIntersecting;},{threshold:.05}).observe(section);
-  else active=true;
-  (function tick(){
+  const resize = () => {
+    w = section.clientWidth; h = section.clientHeight;
+    canvas.width = Math.round(w * dpr()); canvas.height = Math.round(h * dpr());
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  };
+  resize(); window.addEventListener('resize', resize);
+  let crystals = [], active = false;
+  const MAX = 3;
+  const spawn = () => crystals.push(
+    makeFrostCrystal(w*(0.1+Math.random()*0.8), h*(0.1+Math.random()*0.8), w*0.5, h*0.5));
+  spawn();
+  if (typeof IntersectionObserver !== 'undefined')
+    new IntersectionObserver(e => { active = e[0].isIntersecting; }, {threshold:.05}).observe(section);
+  else active = true;
+  (function tick() {
     requestAnimationFrame(tick);
-    if(!active)return;
-    for(let i=0;i<N;i++){pos[i*3+1]+=vel[i];if(pos[i*3+1]>5)pos[i*3+1]=-5;}
-    geo.attributes.position.needsUpdate=true;
-    pts.rotation.y+=.0002;
-    renderer.render(scene,camera);
+    if (!active) return;
+    const d = dpr();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save(); ctx.scale(d, d);
+    crystals = crystals.filter(c => !c.dead());
+    for (const c of crystals) { c.update(); c.draw(ctx); }
+    ctx.restore();
+    if (crystals.length < MAX && Math.random() < 0.006) spawn();
   })();
 })();
 </script>
